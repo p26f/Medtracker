@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MedTracker">
+<meta name="theme-color" content="#0f1117">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.svg">
+<title>MedTracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f1117;
+  --surface: #181c27;
+  --surface2: #1e2333;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.13);
+  --text: #f0f2f8;
+  --text2: #8a8fa8;
+  --text3: #555b72;
+  --green: #3dd68c;
+  --green-dim: rgba(61,214,140,0.12);
+  --amber: #f5a623;
+  --amber-dim: rgba(245,166,35,0.12);
+  --red: #ff5c5c;
+  --red-dim: rgba(255,92,92,0.12);
+  --blue: #5b8dee;
+  --blue-dim: rgba(91,141,238,0.12);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --mono: 'DM Mono', monospace;
+  --sans: 'DM Sans', sans-serif;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--sans); overflow-x: hidden; }
+body { overscroll-behavior: none; }
+
+/* Layout */
+.app { max-width: 430px; margin: 0 auto; min-height: 100vh; position: relative; }
+.screen { display: none; flex-direction: column; min-height: 100vh; padding-bottom: calc(72px + var(--safe-bottom)); }
+.screen.active { display: flex; }
+
+/* Header */
+.header { padding: 56px 20px 20px; }
+.header-top { display: flex; align-items: center; justify-content: space-between; }
+.header h1 { font-size: 26px; font-weight: 500; letter-spacing: -0.5px; }
+.header .subtitle { font-size: 13px; color: var(--text2); margin-top: 3px; font-family: var(--mono); }
+.header-action { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border2); background: var(--surface); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text2); transition: all 0.15s; }
+.header-action:active { transform: scale(0.92); background: var(--surface2); }
+.header-action svg { width: 18px; height: 18px; }
+
+/* Stats bar */
+.stats-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 0 20px 20px; }
+.stat-pill { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; }
+.stat-pill .val { font-size: 22px; font-weight: 500; font-family: var(--mono); }
+.stat-pill .lbl { font-size: 11px; color: var(--text2); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
+.stat-pill.danger .val { color: var(--red); }
+.stat-pill.warn .val { color: var(--amber); }
+
+/* Med list */
+.med-list { padding: 0 20px; display: flex; flex-direction: column; gap: 10px; }
+.empty-state { text-align: center; padding: 60px 20px; color: var(--text3); }
+.empty-state .icon { font-size: 40px; margin-bottom: 12px; }
+.empty-state p { font-size: 14px; line-height: 1.6; }
+
+/* Med card */
+.med-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; position: relative; overflow: hidden; cursor: pointer; transition: border-color 0.15s; }
+.med-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; }
+.med-card.ok::before { background: var(--green); }
+.med-card.warn::before { background: var(--amber); }
+.med-card.danger::before { background: var(--red); }
+.med-card:active { border-color: var(--border2); }
+.card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
+.card-name { font-size: 16px; font-weight: 500; }
+.card-schedule { font-size: 12px; color: var(--text2); margin-top: 3px; font-family: var(--mono); }
+.card-badge { font-size: 11px; font-family: var(--mono); padding: 4px 10px; border-radius: 99px; white-space: nowrap; font-weight: 500; }
+.card-badge.ok { background: var(--green-dim); color: var(--green); }
+.card-badge.warn { background: var(--amber-dim); color: var(--amber); }
+.card-badge.danger { background: var(--red-dim); color: var(--red); }
+.card-bar-bg { height: 4px; background: rgba(255,255,255,0.06); border-radius: 99px; overflow: hidden; margin-bottom: 8px; }
+.card-bar { height: 4px; border-radius: 99px; transition: width 0.4s ease; }
+.card-bar.ok { background: var(--green); }
+.card-bar.warn { background: var(--amber); }
+.card-bar.danger { background: var(--red); }
+.card-footer { display: flex; align-items: center; justify-content: space-between; }
+.card-qty { font-size: 12px; color: var(--text3); font-family: var(--mono); }
+.card-actions { display: flex; gap: 6px; }
+.card-btn { width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text2); transition: all 0.15s; }
+.card-btn:active { transform: scale(0.9); }
+.card-btn svg { width: 14px; height: 14px; }
+.card-btn.danger-btn:active { background: var(--red-dim); border-color: var(--red); color: var(--red); }
+
+/* Bottom nav */
+.bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; background: rgba(15,17,23,0.92); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid var(--border); display: flex; padding: 10px 20px calc(10px + var(--safe-bottom)); gap: 8px; z-index: 50; }
+.nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 4px; border-radius: var(--radius-sm); border: none; background: none; color: var(--text3); cursor: pointer; transition: all 0.15s; font-family: var(--sans); }
+.nav-btn.active { color: var(--text); background: var(--surface); }
+.nav-btn svg { width: 20px; height: 20px; }
+.nav-btn span { font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* Add FAB */
+.fab { position: fixed; bottom: calc(80px + var(--safe-bottom)); right: calc(50% - 215px + 20px); width: 52px; height: 52px; border-radius: 50%; background: var(--text); color: var(--bg); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 24px rgba(0,0,0,0.4); transition: transform 0.15s; z-index: 40; }
+.fab:active { transform: scale(0.92); }
+.fab svg { width: 22px; height: 22px; }
+@media (max-width: 430px) { .fab { right: 20px; } }
+
+/* Sheet / Modal */
+.sheet-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; display: none; align-items: flex-end; justify-content: center; backdrop-filter: blur(4px); }
+.sheet-overlay.open { display: flex; }
+.sheet { background: var(--surface); border-radius: 24px 24px 0 0; width: 100%; max-width: 430px; padding: 12px 20px calc(24px + var(--safe-bottom)); max-height: 90vh; overflow-y: auto; animation: slideUp 0.25s ease; }
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.sheet-handle { width: 36px; height: 4px; background: var(--border2); border-radius: 99px; margin: 0 auto 20px; }
+.sheet-title { font-size: 18px; font-weight: 500; margin-bottom: 20px; }
+.field { margin-bottom: 16px; }
+.field label { display: block; font-size: 12px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; font-family: var(--mono); }
+.field input { width: 100%; background: var(--bg); border: 1px solid var(--border2); border-radius: var(--radius-sm); padding: 12px 14px; color: var(--text); font-family: var(--sans); font-size: 16px; outline: none; transition: border-color 0.15s; -webkit-appearance: none; }
+.field input:focus { border-color: var(--blue); }
+.field input::placeholder { color: var(--text3); }
+.field-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+.sheet-actions { display: flex; gap: 10px; margin-top: 20px; }
+.btn { flex: 1; padding: 14px; border-radius: var(--radius-sm); font-size: 15px; font-family: var(--sans); font-weight: 500; cursor: pointer; border: none; transition: all 0.15s; }
+.btn:active { transform: scale(0.97); }
+.btn-ghost { background: var(--surface2); color: var(--text2); }
+.btn-primary { background: var(--text); color: var(--bg); }
+
+/* Log sheet */
+.log-qty-display { font-size: 52px; font-family: var(--mono); font-weight: 500; text-align: center; padding: 20px 0; }
+.log-controls { display: flex; align-items: center; justify-content: center; gap: 24px; margin-bottom: 8px; }
+.log-ctrl-btn { width: 52px; height: 52px; border-radius: 50%; border: 1px solid var(--border2); background: var(--surface2); color: var(--text); font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+.log-ctrl-btn:active { transform: scale(0.9); background: var(--surface); }
+.log-hint { text-align: center; font-size: 12px; color: var(--text3); font-family: var(--mono); margin-bottom: 4px; }
+.quick-row { display: flex; justify-content: center; gap: 8px; margin-bottom: 16px; }
+.quick-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--text2); font-size: 12px; font-family: var(--mono); padding: 6px 12px; cursor: pointer; transition: all 0.15s; }
+.quick-btn:active { background: var(--blue-dim); border-color: var(--blue); color: var(--blue); }
+
+/* History screen */
+.section-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.8px; font-family: var(--mono); padding: 0 20px; margin-bottom: 8px; }
+.history-list { padding: 0 20px; display: flex; flex-direction: column; gap: 6px; }
+.history-item { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; }
+.history-name { font-size: 14px; }
+.history-meta { font-size: 11px; color: var(--text3); margin-top: 2px; font-family: var(--mono); }
+.history-delta { font-size: 14px; font-family: var(--mono); font-weight: 500; }
+.history-delta.neg { color: var(--red); }
+.history-delta.pos { color: var(--green); }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Home screen -->
+  <div class="screen active" id="screen-home">
+    <div class="header">
+      <div class="header-top">
+        <div>
+          <h1>MedTracker</h1>
+          <div class="subtitle" id="today-date"></div>
+        </div>
+      </div>
+    </div>
+    <div class="stats-bar">
+      <div class="stat-pill"><div class="val" id="stat-total">0</div><div class="lbl">Medicines</div></div>
+      <div class="stat-pill danger"><div class="val" id="stat-refill">0</div><div class="lbl">Refill now</div></div>
+      <div class="stat-pill warn"><div class="val" id="stat-soon">0</div><div class="lbl">Refill soon</div></div>
+    </div>
+    <div class="med-list" id="med-list"></div>
+  </div>
+
+  <!-- History screen -->
+  <div class="screen" id="screen-history">
+    <div class="header">
+      <div class="header-top"><h1>History</h1></div>
+      <div class="subtitle">Recent changes</div>
+    </div>
+    <div class="section-label">Log</div>
+    <div class="history-list" id="history-list"></div>
+  </div>
+
+  <!-- Bottom nav -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" id="nav-home" onclick="showScreen('home')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>Home</span>
+    </button>
+    <button class="nav-btn" id="nav-history" onclick="showScreen('history')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <span>History</span>
+    </button>
+  </nav>
+
+  <!-- FAB -->
+  <button class="fab" onclick="openAdd()" aria-label="Add medicine">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+  </button>
+
+  <!-- Add/Edit sheet -->
+  <div class="sheet-overlay" id="add-sheet">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-title" id="add-sheet-title">Add medicine</div>
+      <div class="field"><label>Medicine name</label><input type="text" id="f-name" placeholder="e.g. Metformin 500mg" autocomplete="off"></div>
+      <div class="field"><label>Schedule / notes</label><input type="text" id="f-schedule" placeholder="e.g. 1 tablet twice daily" autocomplete="off"></div>
+      <div class="field-row">
+        <div class="field"><label>Qty now</label><input type="number" id="f-qty" min="0" placeholder="30" inputmode="decimal"></div>
+        <div class="field"><label>Per day</label><input type="number" id="f-daily" min="0.1" step="0.5" placeholder="1" inputmode="decimal"></div>
+        <div class="field"><label>Alert (days)</label><input type="number" id="f-threshold" min="1" placeholder="7" inputmode="decimal"></div>
+      </div>
+      <div class="sheet-actions">
+        <button class="btn btn-ghost" onclick="closeSheet('add-sheet')">Cancel</button>
+        <button class="btn btn-primary" onclick="saveMed()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Log sheet -->
+  <div class="sheet-overlay" id="log-sheet">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-title" id="log-sheet-title">Update stock</div>
+      <div class="log-hint">Current quantity</div>
+      <div class="log-qty-display" id="log-qty-display">0</div>
+      <div class="log-controls">
+        <button class="log-ctrl-btn" onclick="adjustLog(-1)">−</button>
+        <button class="log-ctrl-btn" onclick="adjustLog(1)">+</button>
+      </div>
+      <div class="quick-row">
+        <button class="quick-btn" onclick="adjustLog(-7)">−7</button>
+        <button class="quick-btn" onclick="adjustLog(-14)">−14</button>
+        <button class="quick-btn" onclick="adjustLog(-30)">−30</button>
+        <button class="quick-btn" onclick="adjustLog(30)">+30</button>
+      </div>
+      <div class="sheet-actions">
+        <button class="btn btn-ghost" onclick="closeSheet('log-sheet')">Cancel</button>
+        <button class="btn btn-primary" onclick="saveLog()">Update</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+<script>
+const STORAGE_KEY = 'medtracker_v1';
+const HISTORY_KEY = 'medtracker_history_v1';
+let meds = [];
+let history = [];
+let editingId = null;
+let logId = null;
+let logQty = 0;
+
+function load() {
+  try { meds = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch(e) { meds = []; }
+  try { history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); } catch(e) { history = []; }
+}
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(meds));
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(history.slice(0, 100)));
+}
+
+function daysLeft(qty, daily) { return daily > 0 ? Math.floor(qty / daily) : 999; }
+function statusFor(qty, daily, threshold) {
+  const d = daysLeft(qty, daily);
+  if (d <= 0) return 'danger';
+  if (d <= threshold) return 'warn';
+  return 'ok';
+}
+
+function renderHome() {
+  const list = document.getElementById('med-list');
+  if (meds.length === 0) {
+    list.innerHTML = '<div class="empty-state"><div class="icon">💊</div><p>No medicines yet.<br>Tap + to add your first one.</p></div>';
+  } else {
+    list.innerHTML = meds.map(m => {
+      const days = daysLeft(m.qty, m.daily);
+      const st = statusFor(m.qty, m.daily, m.threshold);
+      const pct = Math.min(100, Math.max(0, Math.round((m.qty / (m.maxQty || m.qty || 1)) * 100)));
+      const badgeText = days <= 0 ? 'Refill now' : days === 1 ? '1 day left' : days > 90 ? 'Well stocked' : days + ' days left';
+      return `<div class="med-card ${st}" onclick="openLog('${m.id}')">
+        <div class="card-top">
+          <div>
+            <div class="card-name">${m.name}</div>
+            ${m.schedule ? `<div class="card-schedule">${m.schedule}</div>` : ''}
+          </div>
+          <span class="card-badge ${st}">${badgeText}</span>
+        </div>
+        <div class="card-bar-bg"><div class="card-bar ${st}" style="width:${pct}%"></div></div>
+        <div class="card-footer">
+          <span class="card-qty">${m.qty} units · ${m.daily}/day</span>
+          <div class="card-actions" onclick="event.stopPropagation()">
+            <button class="card-btn" onclick="openEdit('${m.id}')" aria-label="Edit">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+            <button class="card-btn danger-btn" onclick="deleteMed('${m.id}')" aria-label="Delete">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  const refill = meds.filter(m => statusFor(m.qty, m.daily, m.threshold) === 'danger').length;
+  const soon = meds.filter(m => statusFor(m.qty, m.daily, m.threshold) === 'warn').length;
+  document.getElementById('stat-total').textContent = meds.length;
+  document.getElementById('stat-refill').textContent = refill;
+  document.getElementById('stat-soon').textContent = soon;
+}
+
+function renderHistory() {
+  const list = document.getElementById('history-list');
+  if (history.length === 0) {
+    list.innerHTML = '<div style="padding: 40px 0; text-align:center; color:var(--text3); font-size:14px;">No history yet.</div>';
+    return;
+  }
+  list.innerHTML = history.map(h => {
+    const sign = h.delta >= 0 ? '+' : '';
+    return `<div class="history-item">
+      <div>
+        <div class="history-name">${h.name}</div>
+        <div class="history-meta">${h.date} · ${h.newQty} remaining</div>
+      </div>
+      <div class="history-delta ${h.delta >= 0 ? 'pos' : 'neg'}">${sign}${h.delta}</div>
+    </div>`;
+  }).join('');
+}
+
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('nav-' + name).classList.add('active');
+  if (name === 'history') renderHistory();
+}
+
+function openAdd() {
+  editingId = null;
+  document.getElementById('add-sheet-title').textContent = 'Add medicine';
+  ['f-name','f-schedule','f-qty','f-daily'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-threshold').value = '7';
+  document.getElementById('add-sheet').classList.add('open');
+  setTimeout(() => document.getElementById('f-name').focus(), 300);
+}
+
+function openEdit(id) {
+  const m = meds.find(x => x.id === id);
+  if (!m) return;
+  editingId = id;
+  document.getElementById('add-sheet-title').textContent = 'Edit medicine';
+  document.getElementById('f-name').value = m.name;
+  document.getElementById('f-schedule').value = m.schedule || '';
+  document.getElementById('f-qty').value = m.qty;
+  document.getElementById('f-daily').value = m.daily;
+  document.getElementById('f-threshold').value = m.threshold;
+  document.getElementById('add-sheet').classList.add('open');
+}
+
+function saveMed() {
+  const name = document.getElementById('f-name').value.trim();
+  if (!name) return;
+  const qty = parseFloat(document.getElementById('f-qty').value) || 0;
+  const daily = parseFloat(document.getElementById('f-daily').value) || 1;
+  const threshold = parseInt(document.getElementById('f-threshold').value) || 7;
+  const schedule = document.getElementById('f-schedule').value.trim();
+  if (editingId) {
+    const m = meds.find(x => x.id === editingId);
+    if (m) { m.name = name; m.schedule = schedule; m.qty = qty; m.daily = daily; m.threshold = threshold; m.maxQty = Math.max(m.maxQty || 0, qty); }
+  } else {
+    meds.push({ id: Date.now().toString(), name, schedule, qty, daily, threshold, maxQty: qty });
+  }
+  save(); renderHome(); closeSheet('add-sheet');
+}
+
+function openLog(id) {
+  const m = meds.find(x => x.id === id);
+  if (!m) return;
+  logId = id; logQty = m.qty;
+  document.getElementById('log-sheet-title').textContent = m.name;
+  document.getElementById('log-qty-display').textContent = logQty;
+  document.getElementById('log-sheet').classList.add('open');
+}
+
+function adjustLog(delta) {
+  logQty = Math.max(0, logQty + delta);
+  document.getElementById('log-qty-display').textContent = logQty;
+}
+
+function saveLog() {
+  const m = meds.find(x => x.id === logId);
+  if (!m) return;
+  const delta = logQty - m.qty;
+  const dateStr = new Date().toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  history.unshift({ name: m.name, delta, newQty: logQty, date: dateStr });
+  m.maxQty = Math.max(m.maxQty || 0, logQty);
+  m.qty = logQty;
+  save(); renderHome(); closeSheet('log-sheet');
+}
+
+function deleteMed(id) {
+  if (!confirm('Remove this medicine?')) return;
+  meds = meds.filter(x => x.id !== id);
+  save(); renderHome();
+}
+
+function closeSheet(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+document.querySelectorAll('.sheet-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
+});
+
+const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const now = new Date();
+document.getElementById('today-date').textContent = days[now.getDay()] + ', ' + months[now.getMonth()] + ' ' + now.getDate();
+
+load();
+renderHome();
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+</script>
+</body>
+</html>
