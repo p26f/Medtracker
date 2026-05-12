@@ -4,209 +4,216 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="MedTracker">
-<meta name="theme-color" content="#0f1117">
+<meta name="theme-color" content="#fdf6ee">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.svg">
 <title>MedTracker</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #0f1117;
-  --surface: #181c27;
-  --surface2: #1e2333;
-  --border: rgba(255,255,255,0.07);
-  --border2: rgba(255,255,255,0.13);
-  --text: #f0f2f8;
-  --text2: #8a8fa8;
-  --text3: #555b72;
-  --green: #3dd68c;
-  --green-dim: rgba(61,214,140,0.12);
-  --amber: #f5a623;
-  --amber-dim: rgba(245,166,35,0.12);
-  --red: #ff5c5c;
-  --red-dim: rgba(255,92,92,0.12);
-  --blue: #5b8dee;
-  --blue-dim: rgba(91,141,238,0.12);
-  --radius: 16px;
-  --radius-sm: 10px;
-  --mono: 'DM Mono', monospace;
-  --sans: 'DM Sans', sans-serif;
+  --bg: #fdf6ee;
+  --bg2: #f7ede0;
+  --surface: #ffffff;
+  --border: #e8d9c8;
+  --border2: #d4bfa8;
+  --text: #3a2e24;
+  --text2: #7a6555;
+  --text3: #b09a87;
+  --green: #4a7c59;
+  --green-bg: #eaf3ed;
+  --green-border: #c2dccb;
+  --amber: #c07a1a;
+  --amber-bg: #fdf0dc;
+  --amber-border: #f0cc8a;
+  --red: #b84040;
+  --red-bg: #fceaea;
+  --red-border: #e8b0b0;
+  --radius: 20px;
+  --radius-sm: 12px;
+  --font-display: 'Lora', serif;
+  --font-body: 'Nunito', sans-serif;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-top: env(safe-area-inset-top, 0px);
 }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--sans); overflow-x: hidden; }
+html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--font-body); font-size: 17px; }
 body { overscroll-behavior: none; }
-
-/* Layout */
-.app { max-width: 430px; margin: 0 auto; min-height: 100vh; position: relative; }
-.screen { display: none; flex-direction: column; min-height: 100vh; padding-bottom: calc(72px + var(--safe-bottom)); }
+.app { max-width: 430px; margin: 0 auto; min-height: 100vh; }
+.screen { display: none; flex-direction: column; min-height: 100vh; padding-bottom: calc(88px + var(--safe-bottom)); }
 .screen.active { display: flex; }
 
-/* Header */
-.header { padding: 56px 20px 20px; }
-.header-top { display: flex; align-items: center; justify-content: space-between; }
-.header h1 { font-size: 26px; font-weight: 500; letter-spacing: -0.5px; }
-.header .subtitle { font-size: 13px; color: var(--text2); margin-top: 3px; font-family: var(--mono); }
-.header-action { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border2); background: var(--surface); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text2); transition: all 0.15s; }
-.header-action:active { transform: scale(0.92); background: var(--surface2); }
-.header-action svg { width: 18px; height: 18px; }
+.header { padding: calc(16px + var(--safe-top)) 22px 16px; }
+.header-greeting { font-family: var(--font-display); font-size: 26px; font-weight: 600; color: var(--text); line-height: 1.2; }
+.header-date { font-size: 15px; color: var(--text2); margin-top: 4px; }
 
-/* Stats bar */
-.stats-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 0 20px 20px; }
-.stat-pill { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; }
-.stat-pill .val { font-size: 22px; font-weight: 500; font-family: var(--mono); }
-.stat-pill .lbl { font-size: 11px; color: var(--text2); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
-.stat-pill.danger .val { color: var(--red); }
-.stat-pill.warn .val { color: var(--amber); }
+.alert-banner { margin: 0 22px 16px; border-radius: var(--radius-sm); padding: 14px 16px; display: none; }
+.alert-banner.show { display: block; }
+.alert-banner.danger { background: var(--red-bg); border: 1.5px solid var(--red-border); }
+.alert-banner.warn { background: var(--amber-bg); border: 1.5px solid var(--amber-border); }
+.alert-banner-title { font-weight: 700; font-size: 15px; margin-bottom: 3px; }
+.alert-banner.danger .alert-banner-title { color: var(--red); }
+.alert-banner.warn .alert-banner-title { color: var(--amber); }
+.alert-banner-body { font-size: 14px; color: var(--text2); line-height: 1.5; }
 
-/* Med list */
-.med-list { padding: 0 20px; display: flex; flex-direction: column; gap: 10px; }
-.empty-state { text-align: center; padding: 60px 20px; color: var(--text3); }
-.empty-state .icon { font-size: 40px; margin-bottom: 12px; }
-.empty-state p { font-size: 14px; line-height: 1.6; }
+.section-title { font-family: var(--font-display); font-size: 16px; font-weight: 500; color: var(--text2); padding: 0 22px; margin-bottom: 12px; }
+.med-list { padding: 0 22px; display: flex; flex-direction: column; gap: 14px; }
 
-/* Med card */
-.med-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; position: relative; overflow: hidden; cursor: pointer; transition: border-color 0.15s; }
-.med-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; }
-.med-card.ok::before { background: var(--green); }
-.med-card.warn::before { background: var(--amber); }
-.med-card.danger::before { background: var(--red); }
-.med-card:active { border-color: var(--border2); }
-.card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
-.card-name { font-size: 16px; font-weight: 500; }
-.card-schedule { font-size: 12px; color: var(--text2); margin-top: 3px; font-family: var(--mono); }
-.card-badge { font-size: 11px; font-family: var(--mono); padding: 4px 10px; border-radius: 99px; white-space: nowrap; font-weight: 500; }
-.card-badge.ok { background: var(--green-dim); color: var(--green); }
-.card-badge.warn { background: var(--amber-dim); color: var(--amber); }
-.card-badge.danger { background: var(--red-dim); color: var(--red); }
-.card-bar-bg { height: 4px; background: rgba(255,255,255,0.06); border-radius: 99px; overflow: hidden; margin-bottom: 8px; }
-.card-bar { height: 4px; border-radius: 99px; transition: width 0.4s ease; }
+.empty-state { text-align: center; padding: 50px 30px; }
+.empty-icon { font-size: 52px; margin-bottom: 14px; }
+.empty-title { font-family: var(--font-display); font-size: 20px; color: var(--text); margin-bottom: 8px; }
+.empty-sub { font-size: 15px; color: var(--text2); line-height: 1.6; }
+
+.med-card { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 18px 18px 14px; box-shadow: 0 2px 8px rgba(58,46,36,0.06); }
+.med-card.ok { border-left: 5px solid var(--green); }
+.med-card.warn { border-left: 5px solid var(--amber); }
+.med-card.danger { border-left: 5px solid var(--red); }
+.card-name { font-family: var(--font-display); font-size: 19px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+.card-schedule { font-size: 14px; color: var(--text2); margin-bottom: 14px; }
+.card-no-schedule { margin-bottom: 14px; }
+
+.card-days-row { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 10px; }
+.card-days-num { font-family: var(--font-display); font-size: 44px; font-weight: 600; line-height: 1; }
+.card-days-num.ok { color: var(--green); }
+.card-days-num.warn { color: var(--amber); }
+.card-days-num.danger { color: var(--red); }
+.card-days-label { font-size: 15px; color: var(--text2); margin-left: 7px; margin-bottom: 7px; }
+.card-order-by { text-align: right; }
+.card-order-label { font-size: 12px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 2px; }
+.card-order-date { font-size: 16px; font-weight: 700; }
+.card-order-date.now { color: var(--red); }
+.card-order-date.soon { color: var(--amber); }
+.card-order-date.later { color: var(--text3); font-weight: 500; }
+
+.card-bar-bg { height: 6px; background: var(--bg2); border-radius: 99px; overflow: hidden; margin-bottom: 12px; }
+.card-bar { height: 6px; border-radius: 99px; transition: width 0.5s ease; }
 .card-bar.ok { background: var(--green); }
 .card-bar.warn { background: var(--amber); }
 .card-bar.danger { background: var(--red); }
+
 .card-footer { display: flex; align-items: center; justify-content: space-between; }
-.card-qty { font-size: 12px; color: var(--text3); font-family: var(--mono); }
-.card-actions { display: flex; gap: 6px; }
-.card-btn { width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text2); transition: all 0.15s; }
-.card-btn:active { transform: scale(0.9); }
+.card-meta { font-size: 13px; color: var(--text3); line-height: 1.6; }
+.card-actions { display: flex; gap: 8px; flex-shrink: 0; }
+.card-btn { height: 36px; padding: 0 14px; border-radius: 99px; border: 1.5px solid var(--border2); background: var(--bg2); display: flex; align-items: center; gap: 5px; cursor: pointer; color: var(--text2); font-size: 14px; font-family: var(--font-body); font-weight: 700; transition: all 0.15s; }
+.card-btn:active { transform: scale(0.95); }
+.card-btn.refill { background: var(--green-bg); border-color: var(--green-border); color: var(--green); }
 .card-btn svg { width: 14px; height: 14px; }
-.card-btn.danger-btn:active { background: var(--red-dim); border-color: var(--red); color: var(--red); }
 
-/* Bottom nav */
-.bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; background: rgba(15,17,23,0.92); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid var(--border); display: flex; padding: 10px 20px calc(10px + var(--safe-bottom)); gap: 8px; z-index: 50; }
-.nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 4px; border-radius: var(--radius-sm); border: none; background: none; color: var(--text3); cursor: pointer; transition: all 0.15s; font-family: var(--sans); }
-.nav-btn.active { color: var(--text); background: var(--surface); }
-.nav-btn svg { width: 20px; height: 20px; }
-.nav-btn span { font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+.bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; background: rgba(253,246,238,0.96); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-top: 1.5px solid var(--border); display: flex; padding: 10px 22px calc(10px + var(--safe-bottom)); gap: 8px; z-index: 50; }
+.nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 4px; border-radius: var(--radius-sm); border: none; background: none; color: var(--text3); cursor: pointer; font-family: var(--font-body); transition: all 0.15s; }
+.nav-btn.active { color: var(--text); background: var(--bg2); }
+.nav-btn svg { width: 22px; height: 22px; }
+.nav-btn span { font-size: 12px; font-weight: 700; }
 
-/* Add FAB */
-.fab { position: fixed; bottom: calc(80px + var(--safe-bottom)); right: calc(50% - 215px + 20px); width: 52px; height: 52px; border-radius: 50%; background: var(--text); color: var(--bg); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 24px rgba(0,0,0,0.4); transition: transform 0.15s; z-index: 40; }
+.fab { position: fixed; bottom: calc(82px + var(--safe-bottom)); right: calc(50% - 215px + 22px); width: 56px; height: 56px; border-radius: 50%; background: var(--text); color: var(--bg); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 20px rgba(58,46,36,0.28); transition: transform 0.15s; z-index: 40; }
 .fab:active { transform: scale(0.92); }
-.fab svg { width: 22px; height: 22px; }
-@media (max-width: 430px) { .fab { right: 20px; } }
+.fab svg { width: 24px; height: 24px; }
+@media (max-width: 430px) { .fab { right: 22px; } }
 
-/* Sheet / Modal */
-.sheet-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; display: none; align-items: flex-end; justify-content: center; backdrop-filter: blur(4px); }
+.sheet-overlay { position: fixed; inset: 0; background: rgba(58,46,36,0.4); z-index: 100; display: none; align-items: flex-end; justify-content: center; backdrop-filter: blur(3px); }
 .sheet-overlay.open { display: flex; }
-.sheet { background: var(--surface); border-radius: 24px 24px 0 0; width: 100%; max-width: 430px; padding: 12px 20px calc(24px + var(--safe-bottom)); max-height: 90vh; overflow-y: auto; animation: slideUp 0.25s ease; }
+.sheet { background: var(--surface); border-radius: 28px 28px 0 0; width: 100%; max-width: 430px; padding: 12px 22px calc(28px + var(--safe-bottom)); max-height: 92vh; overflow-y: auto; animation: slideUp 0.28s cubic-bezier(0.32,0.72,0,1); }
 @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-.sheet-handle { width: 36px; height: 4px; background: var(--border2); border-radius: 99px; margin: 0 auto 20px; }
-.sheet-title { font-size: 18px; font-weight: 500; margin-bottom: 20px; }
-.field { margin-bottom: 16px; }
-.field label { display: block; font-size: 12px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; font-family: var(--mono); }
-.field input { width: 100%; background: var(--bg); border: 1px solid var(--border2); border-radius: var(--radius-sm); padding: 12px 14px; color: var(--text); font-family: var(--sans); font-size: 16px; outline: none; transition: border-color 0.15s; -webkit-appearance: none; }
-.field input:focus { border-color: var(--blue); }
+.sheet-handle { width: 40px; height: 5px; background: var(--border2); border-radius: 99px; margin: 0 auto 22px; }
+.sheet-title { font-family: var(--font-display); font-size: 22px; font-weight: 600; margin-bottom: 6px; color: var(--text); }
+.sheet-sub { font-size: 15px; color: var(--text2); margin-bottom: 22px; line-height: 1.6; }
+
+.field { margin-bottom: 18px; }
+.field label { display: block; font-size: 13px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+.field input { width: 100%; background: var(--bg); border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 14px 16px; color: var(--text); font-family: var(--font-body); font-size: 17px; outline: none; transition: border-color 0.15s; -webkit-appearance: none; }
+.field input:focus { border-color: var(--border2); }
 .field input::placeholder { color: var(--text3); }
-.field-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-.sheet-actions { display: flex; gap: 10px; margin-top: 20px; }
-.btn { flex: 1; padding: 14px; border-radius: var(--radius-sm); font-size: 15px; font-family: var(--sans); font-weight: 500; cursor: pointer; border: none; transition: all 0.15s; }
+.field-hint { font-size: 13px; color: var(--text3); margin-top: 6px; line-height: 1.4; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+hr.divider { border: none; border-top: 1.5px solid var(--border); margin: 4px 0 20px; }
+
+.sheet-actions { display: flex; gap: 12px; margin-top: 24px; }
+.btn { flex: 1; padding: 15px; border-radius: var(--radius-sm); font-size: 16px; font-family: var(--font-body); font-weight: 700; cursor: pointer; border: none; transition: all 0.15s; }
 .btn:active { transform: scale(0.97); }
-.btn-ghost { background: var(--surface2); color: var(--text2); }
+.btn-ghost { background: var(--bg2); color: var(--text2); border: 1.5px solid var(--border); }
 .btn-primary { background: var(--text); color: var(--bg); }
+.btn-green { background: var(--green); color: white; }
+.btn-red { background: var(--red); color: white; }
 
-/* Log sheet */
-.log-qty-display { font-size: 52px; font-family: var(--mono); font-weight: 500; text-align: center; padding: 20px 0; }
-.log-controls { display: flex; align-items: center; justify-content: center; gap: 24px; margin-bottom: 8px; }
-.log-ctrl-btn { width: 52px; height: 52px; border-radius: 50%; border: 1px solid var(--border2); background: var(--surface2); color: var(--text); font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
-.log-ctrl-btn:active { transform: scale(0.9); background: var(--surface); }
-.log-hint { text-align: center; font-size: 12px; color: var(--text3); font-family: var(--mono); margin-bottom: 4px; }
-.quick-row { display: flex; justify-content: center; gap: 8px; margin-bottom: 16px; }
-.quick-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--text2); font-size: 12px; font-family: var(--mono); padding: 6px 12px; cursor: pointer; transition: all 0.15s; }
-.quick-btn:active { background: var(--blue-dim); border-color: var(--blue); color: var(--blue); }
+.refill-num { font-family: var(--font-display); font-size: 64px; font-weight: 600; text-align: center; color: var(--green); padding: 10px 0 4px; line-height: 1; }
+.refill-unit { text-align: center; font-size: 15px; color: var(--text2); margin-bottom: 20px; }
+.refill-controls { display: flex; align-items: center; justify-content: center; gap: 24px; margin-bottom: 14px; }
+.refill-ctrl { width: 56px; height: 56px; border-radius: 50%; border: 1.5px solid var(--border2); background: var(--bg2); color: var(--text); font-size: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; font-family: var(--font-body); line-height: 1; }
+.refill-ctrl:active { transform: scale(0.92); }
+.quick-row { display: flex; justify-content: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
+.quick-btn { background: var(--bg2); border: 1.5px solid var(--border); border-radius: 99px; color: var(--text2); font-size: 15px; font-family: var(--font-body); font-weight: 700; padding: 8px 18px; cursor: pointer; transition: all 0.15s; }
+.quick-btn:active { background: var(--green-bg); border-color: var(--green-border); color: var(--green); }
 
-/* History screen */
-.section-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.8px; font-family: var(--mono); padding: 0 20px; margin-bottom: 8px; }
-.history-list { padding: 0 20px; display: flex; flex-direction: column; gap: 6px; }
-.history-item { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; }
-.history-name { font-size: 14px; }
-.history-meta { font-size: 11px; color: var(--text3); margin-top: 2px; font-family: var(--mono); }
-.history-delta { font-size: 14px; font-family: var(--mono); font-weight: 500; }
-.history-delta.neg { color: var(--red); }
+.options-btn { width: 100%; padding: 16px 20px; border-radius: var(--radius-sm); border: 1.5px solid var(--border); background: var(--bg2); color: var(--text); font-family: var(--font-body); font-size: 16px; font-weight: 600; cursor: pointer; text-align: left; margin-bottom: 10px; transition: all 0.15s; }
+.options-btn:active { background: var(--bg); }
+.options-btn.danger { color: var(--red); border-color: var(--red-border); background: var(--red-bg); }
+
+.history-list { padding: 0 22px; display: flex; flex-direction: column; gap: 10px; }
+.history-item { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; }
+.history-name { font-size: 16px; font-weight: 600; color: var(--text); }
+.history-meta { font-size: 13px; color: var(--text3); margin-top: 3px; }
+.history-delta { font-size: 17px; font-weight: 700; }
 .history-delta.pos { color: var(--green); }
+.history-delta.neg { color: var(--text3); }
+.history-empty { text-align: center; padding: 48px 22px; color: var(--text3); font-size: 15px; line-height: 1.6; }
 </style>
 </head>
 <body>
 <div class="app">
 
-  <!-- Home screen -->
   <div class="screen active" id="screen-home">
     <div class="header">
-      <div class="header-top">
-        <div>
-          <h1>MedTracker</h1>
-          <div class="subtitle" id="today-date"></div>
-        </div>
-      </div>
+      <div class="header-greeting" id="greeting">Good morning</div>
+      <div class="header-date" id="today-date"></div>
     </div>
-    <div class="stats-bar">
-      <div class="stat-pill"><div class="val" id="stat-total">0</div><div class="lbl">Medicines</div></div>
-      <div class="stat-pill danger"><div class="val" id="stat-refill">0</div><div class="lbl">Refill now</div></div>
-      <div class="stat-pill warn"><div class="val" id="stat-soon">0</div><div class="lbl">Refill soon</div></div>
+    <div class="alert-banner" id="alert-banner">
+      <div class="alert-banner-title" id="alert-title"></div>
+      <div class="alert-banner-body" id="alert-body"></div>
     </div>
+    <div class="section-title" id="section-title">Your medicines</div>
     <div class="med-list" id="med-list"></div>
   </div>
 
-  <!-- History screen -->
   <div class="screen" id="screen-history">
     <div class="header">
-      <div class="header-top"><h1>History</h1></div>
-      <div class="subtitle">Recent changes</div>
+      <div class="header-greeting">History</div>
+      <div class="header-date">Your recent activity</div>
     </div>
-    <div class="section-label">Log</div>
     <div class="history-list" id="history-list"></div>
   </div>
 
-  <!-- Bottom nav -->
   <nav class="bottom-nav">
     <button class="nav-btn active" id="nav-home" onclick="showScreen('home')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
       <span>Home</span>
     </button>
     <button class="nav-btn" id="nav-history" onclick="showScreen('history')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
       <span>History</span>
     </button>
   </nav>
 
-  <!-- FAB -->
   <button class="fab" onclick="openAdd()" aria-label="Add medicine">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
   </button>
 
   <!-- Add/Edit sheet -->
   <div class="sheet-overlay" id="add-sheet">
     <div class="sheet">
       <div class="sheet-handle"></div>
-      <div class="sheet-title" id="add-sheet-title">Add medicine</div>
+      <div class="sheet-title" id="add-title">Add a medicine</div>
+      <div class="sheet-sub">Fill in what you know. You can always update it later.</div>
       <div class="field"><label>Medicine name</label><input type="text" id="f-name" placeholder="e.g. Metformin 500mg" autocomplete="off"></div>
-      <div class="field"><label>Schedule / notes</label><input type="text" id="f-schedule" placeholder="e.g. 1 tablet twice daily" autocomplete="off"></div>
+      <div class="field"><label>Schedule or notes</label><input type="text" id="f-schedule" placeholder="e.g. 1 tablet, twice a day" autocomplete="off"></div>
       <div class="field-row">
-        <div class="field"><label>Qty now</label><input type="number" id="f-qty" min="0" placeholder="30" inputmode="decimal"></div>
-        <div class="field"><label>Per day</label><input type="number" id="f-daily" min="0.1" step="0.5" placeholder="1" inputmode="decimal"></div>
-        <div class="field"><label>Alert (days)</label><input type="number" id="f-threshold" min="1" placeholder="7" inputmode="decimal"></div>
+        <div class="field"><label>Pills on hand</label><input type="number" id="f-qty" min="0" placeholder="90" inputmode="decimal"><div class="field-hint">How many you have right now</div></div>
+        <div class="field"><label>Pills per day</label><input type="number" id="f-daily" min="0.5" step="0.5" placeholder="3" inputmode="decimal"><div class="field-hint">Your daily dose</div></div>
+      </div>
+      <hr class="divider">
+      <div class="field-row">
+        <div class="field"><label>Order this many days ahead</label><input type="number" id="f-lead" min="1" placeholder="10" inputmode="decimal"><div class="field-hint">How many days before you run out to place your order</div></div>
+        <div class="field"><label>Order size (days)</label><input type="number" id="f-supply" min="1" placeholder="90" inputmode="decimal"><div class="field-hint">How many days one order lasts</div></div>
       </div>
       <div class="sheet-actions">
         <button class="btn btn-ghost" onclick="closeSheet('add-sheet')">Cancel</button>
@@ -215,39 +222,64 @@ body { overscroll-behavior: none; }
     </div>
   </div>
 
-  <!-- Log sheet -->
-  <div class="sheet-overlay" id="log-sheet">
+  <!-- Refill sheet -->
+  <div class="sheet-overlay" id="refill-sheet">
     <div class="sheet">
       <div class="sheet-handle"></div>
-      <div class="sheet-title" id="log-sheet-title">Update stock</div>
-      <div class="log-hint">Current quantity</div>
-      <div class="log-qty-display" id="log-qty-display">0</div>
-      <div class="log-controls">
-        <button class="log-ctrl-btn" onclick="adjustLog(-1)">−</button>
-        <button class="log-ctrl-btn" onclick="adjustLog(1)">+</button>
+      <div class="sheet-title" id="refill-title">Refill arrived!</div>
+      <div class="sheet-sub">How many pills came in? They'll be added to what you already have.</div>
+      <div class="refill-num" id="refill-display">90</div>
+      <div class="refill-unit">pills to add</div>
+      <div class="refill-controls">
+        <button class="refill-ctrl" onclick="adjustRefill(-1)">−</button>
+        <button class="refill-ctrl" onclick="adjustRefill(1)">+</button>
       </div>
       <div class="quick-row">
-        <button class="quick-btn" onclick="adjustLog(-7)">−7</button>
-        <button class="quick-btn" onclick="adjustLog(-14)">−14</button>
-        <button class="quick-btn" onclick="adjustLog(-30)">−30</button>
-        <button class="quick-btn" onclick="adjustLog(30)">+30</button>
+        <button class="quick-btn" onclick="setRefill(30)">30</button>
+        <button class="quick-btn" onclick="setRefill(60)">60</button>
+        <button class="quick-btn" onclick="setRefill(90)">90</button>
+        <button class="quick-btn" onclick="setRefill(180)">180</button>
       </div>
       <div class="sheet-actions">
-        <button class="btn btn-ghost" onclick="closeSheet('log-sheet')">Cancel</button>
-        <button class="btn btn-primary" onclick="saveLog()">Update</button>
+        <button class="btn btn-ghost" onclick="closeSheet('refill-sheet')">Cancel</button>
+        <button class="btn btn-green" onclick="saveRefill()">Add to my supply ✓</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Options sheet -->
+  <div class="sheet-overlay" id="options-sheet">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-title" id="options-title">Options</div>
+      <div style="margin-top: 8px;">
+        <button class="options-btn" onclick="openEditFromOptions()">Edit medicine details</button>
+        <button class="options-btn danger" onclick="openDeleteConfirm()">Remove this medicine</button>
+        <button class="options-btn" onclick="closeSheet('options-sheet')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete confirm sheet -->
+  <div class="sheet-overlay" id="delete-sheet">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-title" style="color:var(--red);">Remove medicine?</div>
+      <div class="sheet-sub" id="delete-sub"></div>
+      <div class="sheet-actions">
+        <button class="btn btn-ghost" onclick="closeSheet('delete-sheet')">Keep it</button>
+        <button class="btn btn-red" onclick="confirmDelete()">Yes, remove it</button>
       </div>
     </div>
   </div>
 
 </div>
 <script>
-const STORAGE_KEY = 'medtracker_v1';
-const HISTORY_KEY = 'medtracker_history_v1';
-let meds = [];
-let history = [];
-let editingId = null;
-let logId = null;
-let logQty = 0;
+const STORAGE_KEY = 'medtracker_v2';
+const HISTORY_KEY = 'medtracker_hist_v2';
+let meds = [], history = [];
+let editingId = null, refillId = null, optionsId = null;
+let refillAmt = 90;
 
 function load() {
   try { meds = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch(e) { meds = []; }
@@ -255,61 +287,98 @@ function load() {
 }
 function save() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(meds));
-  localStorage.setItem(HISTORY_KEY, JSON.stringify(history.slice(0, 100)));
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(history.slice(0, 200)));
 }
 
-function daysLeft(qty, daily) { return daily > 0 ? Math.floor(qty / daily) : 999; }
-function statusFor(qty, daily, threshold) {
+function daysLeft(qty, daily) { return daily > 0 ? qty / daily : 9999; }
+function daysLeftInt(qty, daily) { return Math.floor(daysLeft(qty, daily)); }
+function statusFor(qty, daily, lead) {
   const d = daysLeft(qty, daily);
-  if (d <= 0) return 'danger';
-  if (d <= threshold) return 'warn';
+  const l = lead || 10;
+  if (d <= l) return 'danger';
+  if (d <= l + 10) return 'warn';
   return 'ok';
+}
+function orderByDate(qty, daily, lead) {
+  const daysUntilOrder = Math.max(0, Math.floor(daysLeft(qty, daily) - (lead || 10)));
+  const d = new Date();
+  d.setDate(d.getDate() + daysUntilOrder);
+  return { date: d, daysAway: daysUntilOrder };
+}
+function fmtDate(d) {
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return months[d.getMonth()] + ' ' + d.getDate();
 }
 
 function renderHome() {
   const list = document.getElementById('med-list');
   if (meds.length === 0) {
-    list.innerHTML = '<div class="empty-state"><div class="icon">💊</div><p>No medicines yet.<br>Tap + to add your first one.</p></div>';
-  } else {
-    list.innerHTML = meds.map(m => {
-      const days = daysLeft(m.qty, m.daily);
-      const st = statusFor(m.qty, m.daily, m.threshold);
-      const pct = Math.min(100, Math.max(0, Math.round((m.qty / (m.maxQty || m.qty || 1)) * 100)));
-      const badgeText = days <= 0 ? 'Refill now' : days === 1 ? '1 day left' : days > 90 ? 'Well stocked' : days + ' days left';
-      return `<div class="med-card ${st}" onclick="openLog('${m.id}')">
-        <div class="card-top">
-          <div>
-            <div class="card-name">${m.name}</div>
-            ${m.schedule ? `<div class="card-schedule">${m.schedule}</div>` : ''}
-          </div>
-          <span class="card-badge ${st}">${badgeText}</span>
-        </div>
-        <div class="card-bar-bg"><div class="card-bar ${st}" style="width:${pct}%"></div></div>
-        <div class="card-footer">
-          <span class="card-qty">${m.qty} units · ${m.daily}/day</span>
-          <div class="card-actions" onclick="event.stopPropagation()">
-            <button class="card-btn" onclick="openEdit('${m.id}')" aria-label="Edit">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-            </button>
-            <button class="card-btn danger-btn" onclick="deleteMed('${m.id}')" aria-label="Delete">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
-            </button>
-          </div>
-        </div>
-      </div>`;
-    }).join('');
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">💊</div><div class="empty-title">No medicines yet</div><div class="empty-sub">Tap the + button at the bottom right to add your first medicine.</div></div>`;
+    document.getElementById('alert-banner').classList.remove('show');
+    document.getElementById('section-title').textContent = 'Your medicines';
+    return;
   }
-  const refill = meds.filter(m => statusFor(m.qty, m.daily, m.threshold) === 'danger').length;
-  const soon = meds.filter(m => statusFor(m.qty, m.daily, m.threshold) === 'warn').length;
-  document.getElementById('stat-total').textContent = meds.length;
-  document.getElementById('stat-refill').textContent = refill;
-  document.getElementById('stat-soon').textContent = soon;
+
+  const danger = meds.filter(m => statusFor(m.qty, m.daily, m.lead) === 'danger');
+  const warn = meds.filter(m => statusFor(m.qty, m.daily, m.lead) === 'warn');
+  const banner = document.getElementById('alert-banner');
+  if (danger.length > 0) {
+    banner.className = 'alert-banner show danger';
+    document.getElementById('alert-title').textContent = danger.length === 1 ? 'Time to refill!' : danger.length + ' medicines need refilling';
+    document.getElementById('alert-body').textContent = danger.map(m => m.name).join(', ') + (danger.length === 1 ? ' is running very low.' : ' are running very low.');
+  } else if (warn.length > 0) {
+    banner.className = 'alert-banner show warn';
+    document.getElementById('alert-title').textContent = 'Order reminder';
+    document.getElementById('alert-body').textContent = 'Time to place an order for: ' + warn.map(m => m.name).join(', ') + '.';
+  } else {
+    banner.classList.remove('show');
+  }
+
+  list.innerHTML = meds.map(m => {
+    const days = daysLeftInt(m.qty, m.daily);
+    const st = statusFor(m.qty, m.daily, m.lead);
+    const pct = Math.min(100, Math.max(0, Math.round((m.qty / (m.maxQty || Math.max(m.qty,1))) * 100)));
+    const { date: oDate, daysAway } = orderByDate(m.qty, m.daily, m.lead);
+    const orderClass = daysAway <= 0 ? 'now' : daysAway <= 7 ? 'soon' : 'later';
+    const orderStr = daysAway <= 0 ? 'Order now' : fmtDate(oDate);
+    return `<div class="med-card ${st}">
+      <div class="card-name">${m.name}</div>
+      ${m.schedule ? `<div class="card-schedule">${m.schedule}</div>` : `<div class="card-no-schedule"></div>`}
+      <div class="card-days-row">
+        <div style="display:flex;align-items:flex-end;gap:6px;">
+          <div class="card-days-num ${st}">${Math.max(0,days)}</div>
+          <div class="card-days-label">days left</div>
+        </div>
+        <div class="card-order-by">
+          <div class="card-order-label">Order by</div>
+          <div class="card-order-date ${orderClass}">${orderStr}</div>
+        </div>
+      </div>
+      <div class="card-bar-bg"><div class="card-bar ${st}" style="width:${pct}%"></div></div>
+      <div class="card-footer">
+        <div class="card-meta">
+          ${m.qty} pills · ${m.daily}/day<br>
+          ${m.lastRefill ? 'Last refill ' + m.lastRefill : ''}
+        </div>
+        <div class="card-actions">
+          <button class="card-btn refill" onclick="openRefill('${m.id}')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Refill
+          </button>
+          <button class="card-btn" onclick="openOptions('${m.id}')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1.2" fill="currentColor"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/><circle cx="12" cy="19" r="1.2" fill="currentColor"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('section-title').textContent = meds.length === 1 ? 'Your 1 medicine' : 'Your ' + meds.length + ' medicines';
 }
 
 function renderHistory() {
   const list = document.getElementById('history-list');
   if (history.length === 0) {
-    list.innerHTML = '<div style="padding: 40px 0; text-align:center; color:var(--text3); font-size:14px;">No history yet.</div>';
+    list.innerHTML = '<div class="history-empty">No history yet.<br>Your refills and changes will show up here.</div>';
     return;
   }
   list.innerHTML = history.map(h => {
@@ -317,9 +386,9 @@ function renderHistory() {
     return `<div class="history-item">
       <div>
         <div class="history-name">${h.name}</div>
-        <div class="history-meta">${h.date} · ${h.newQty} remaining</div>
+        <div class="history-meta">${h.note} · ${h.date}</div>
       </div>
-      <div class="history-delta ${h.delta >= 0 ? 'pos' : 'neg'}">${sign}${h.delta}</div>
+      <div class="history-delta ${h.delta >= 0 ? 'pos' : 'neg'}">${sign}${h.delta} pills</div>
     </div>`;
   }).join('');
 }
@@ -334,92 +403,92 @@ function showScreen(name) {
 
 function openAdd() {
   editingId = null;
-  document.getElementById('add-sheet-title').textContent = 'Add medicine';
-  ['f-name','f-schedule','f-qty','f-daily'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('f-threshold').value = '7';
+  document.getElementById('add-title').textContent = 'Add a medicine';
+  ['f-name','f-schedule','f-qty','f-daily','f-lead','f-supply'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('add-sheet').classList.add('open');
-  setTimeout(() => document.getElementById('f-name').focus(), 300);
+  setTimeout(() => document.getElementById('f-name').focus(), 320);
 }
 
 function openEdit(id) {
   const m = meds.find(x => x.id === id);
   if (!m) return;
   editingId = id;
-  document.getElementById('add-sheet-title').textContent = 'Edit medicine';
+  document.getElementById('add-title').textContent = 'Edit medicine';
   document.getElementById('f-name').value = m.name;
   document.getElementById('f-schedule').value = m.schedule || '';
   document.getElementById('f-qty').value = m.qty;
   document.getElementById('f-daily').value = m.daily;
-  document.getElementById('f-threshold').value = m.threshold;
+  document.getElementById('f-lead').value = m.lead || '';
+  document.getElementById('f-supply').value = m.supply || '';
   document.getElementById('add-sheet').classList.add('open');
 }
 
 function saveMed() {
   const name = document.getElementById('f-name').value.trim();
-  if (!name) return;
+  if (!name) { document.getElementById('f-name').focus(); return; }
   const qty = parseFloat(document.getElementById('f-qty').value) || 0;
   const daily = parseFloat(document.getElementById('f-daily').value) || 1;
-  const threshold = parseInt(document.getElementById('f-threshold').value) || 7;
+  const lead = parseInt(document.getElementById('f-lead').value) || 10;
+  const supply = parseInt(document.getElementById('f-supply').value) || 90;
   const schedule = document.getElementById('f-schedule').value.trim();
   if (editingId) {
     const m = meds.find(x => x.id === editingId);
-    if (m) { m.name = name; m.schedule = schedule; m.qty = qty; m.daily = daily; m.threshold = threshold; m.maxQty = Math.max(m.maxQty || 0, qty); }
+    if (m) { Object.assign(m, { name, schedule, qty, daily, lead, supply, maxQty: Math.max(m.maxQty||0, qty) }); }
   } else {
-    meds.push({ id: Date.now().toString(), name, schedule, qty, daily, threshold, maxQty: qty });
+    meds.push({ id: Date.now().toString(), name, schedule, qty, daily, lead, supply, maxQty: qty, lastRefill: null });
   }
   save(); renderHome(); closeSheet('add-sheet');
 }
 
-function openLog(id) {
+function openRefill(id) {
   const m = meds.find(x => x.id === id);
   if (!m) return;
-  logId = id; logQty = m.qty;
-  document.getElementById('log-sheet-title').textContent = m.name;
-  document.getElementById('log-qty-display').textContent = logQty;
-  document.getElementById('log-sheet').classList.add('open');
+  refillId = id;
+  refillAmt = m.supply || 90;
+  document.getElementById('refill-title').textContent = m.name + ' refill arrived!';
+  document.getElementById('refill-display').textContent = refillAmt;
+  document.getElementById('refill-sheet').classList.add('open');
 }
-
-function adjustLog(delta) {
-  logQty = Math.max(0, logQty + delta);
-  document.getElementById('log-qty-display').textContent = logQty;
-}
-
-function saveLog() {
-  const m = meds.find(x => x.id === logId);
+function adjustRefill(d) { refillAmt = Math.max(1, refillAmt + d); document.getElementById('refill-display').textContent = refillAmt; }
+function setRefill(n) { refillAmt = n; document.getElementById('refill-display').textContent = refillAmt; }
+function saveRefill() {
+  const m = meds.find(x => x.id === refillId);
   if (!m) return;
-  const delta = logQty - m.qty;
-  const dateStr = new Date().toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-  history.unshift({ name: m.name, delta, newQty: logQty, date: dateStr });
-  m.maxQty = Math.max(m.maxQty || 0, logQty);
-  m.qty = logQty;
-  save(); renderHome(); closeSheet('log-sheet');
+  m.qty += refillAmt;
+  m.maxQty = Math.max(m.maxQty || 0, m.qty);
+  m.lastRefill = fmtDate(new Date());
+  history.unshift({ name: m.name, delta: refillAmt, newQty: m.qty, note: 'Refill arrived', date: new Date().toLocaleDateString(undefined,{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}) });
+  save(); renderHome(); closeSheet('refill-sheet');
 }
 
-function deleteMed(id) {
-  if (!confirm('Remove this medicine?')) return;
-  meds = meds.filter(x => x.id !== id);
-  save(); renderHome();
+function openOptions(id) {
+  optionsId = id;
+  const m = meds.find(x => x.id === id);
+  if (m) document.getElementById('options-title').textContent = m.name;
+  document.getElementById('options-sheet').classList.add('open');
 }
-
-function closeSheet(id) {
-  document.getElementById(id).classList.remove('open');
+function openEditFromOptions() { closeSheet('options-sheet'); setTimeout(() => openEdit(optionsId), 220); }
+function openDeleteConfirm() {
+  const m = meds.find(x => x.id === optionsId);
+  document.getElementById('delete-sub').textContent = m ? 'This will remove "' + m.name + '" and all its history. This cannot be undone.' : '';
+  closeSheet('options-sheet');
+  setTimeout(() => document.getElementById('delete-sheet').classList.add('open'), 220);
 }
+function confirmDelete() { meds = meds.filter(x => x.id !== optionsId); save(); renderHome(); closeSheet('delete-sheet'); }
 
-document.querySelectorAll('.sheet-overlay').forEach(overlay => {
-  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
-});
+function closeSheet(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.sheet-overlay').forEach(o => o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); }));
 
-const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+// Greeting & date
 const now = new Date();
-document.getElementById('today-date').textContent = days[now.getDay()] + ', ' + months[now.getMonth()] + ' ' + now.getDate();
+const h = now.getHours();
+document.getElementById('greeting').textContent = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+const dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+document.getElementById('today-date').textContent = dayNames[now.getDay()] + ', ' + monthNames[now.getMonth()] + ' ' + now.getDate();
 
-load();
-renderHome();
-
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js', { scope: './' }).catch(() => {});
-}
+load(); renderHome();
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js', { scope: './' }).catch(()=>{});
 </script>
 </body>
 </html>
